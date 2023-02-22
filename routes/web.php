@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -29,11 +32,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/file-import',[UserController::class,
-        'importView'])->name('import-view');
-Route::post('/import',[UserController::class,
+Route::get('/file-import',function (Request $request){
+    return view('file-import');
+});
+Route::post('/import',[EmployeeController::class,
         'import'])->name('import');
-Route::get('/export-users',[UserController::class,
-        'exportUsers'])->name('export-users');
+Route::get('/export-users',[EmployeeController::class,
+        'exportUsers'])->name('export');
 
 require __DIR__.'/auth.php';
