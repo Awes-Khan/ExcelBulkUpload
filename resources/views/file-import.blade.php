@@ -1,15 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
+            {{ __('Employee Import') }}
         </h2>
         <link rel="stylesheet"
         href=
-"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />(
-<link rel="stylesheet" href="/public/library/mdbootstrap/css/mdb.min.css"/>
-<script src="{{ asset('/public/library/mdbootstrap/js/mdb.min.js') }}"></script>
-<link rel="stylesheet" href="{{ asset('/public/library/sweetalert2/dist/sweetalert2.min.js') }}"/>
-<script src="{{ asset('/public/library/sweetalert2/dist/sweetalert2.min.js') }}"></script>
+"https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/library/mdbootstrap/css/mdb.min.css"/>
+<script src="{{ asset('/library/mdbootstrap/js/mdb.min.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('/library/sweetalert2/dist/sweetalert2.min.js') }}"/>
+<script src="{{ asset('/library/sweetalert2/dist/sweetalert2.min.js') }}"></script>
     </x-slot>
 
     <div class="py-12">
@@ -82,7 +82,21 @@
                         background: #0d45a5;
                         }
                         </style>
-                                <form action="{{ route('import') }}"
+                        @if (session('status'))
+                        <div class="alert alert-success">
+                            {{ session('status') }}
+                        </div>
+                        @endif
+                        @if(isset($errors) && $errors->any())
+                        @foreach ($errors->all() as $error)
+
+                        <div class="alert alert-danger">
+                            {{ $error}}
+                        </div>
+                        @endforeach
+
+                        @endif
+                        <form action="{{ route('import') }}"
                                 method="POST"
                                 enctype="multipart/form-data">
                               @csrf
@@ -92,7 +106,7 @@
                   <label for="images" class="drop-container">
                             <span class="drop-title">Drop files here</span>
                             or
-                            <input type="file" id="images" name="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
+                            <input type="file" id="images" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
                         </label>
                         <br>
                         <div class="row">
@@ -101,8 +115,8 @@
                            </button>
                            <div class="col-sm"></div>
                         <a class="col-sm-2 btn btn-warning"
-                           href="{{ route('export') }}">
-                                  Export User Data
+                           href="{{ route('export.blank') }}">
+                                  Download Template
                           </a>
                         </div>
                     </form>

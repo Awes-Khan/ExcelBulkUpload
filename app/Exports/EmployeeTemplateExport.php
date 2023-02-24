@@ -1,22 +1,32 @@
 <?php
 
 namespace App\Exports;
-use App\Models\User;
+
 use App\Models\Employee;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class ExportEmployee implements FromCollection,WithColumnFormatting,WithCustomStartCell,WithHeadings
+class EmployeeTemplateExport implements FromCollection,WithColumnFormatting,WithCustomStartCell
 {
     /**
     * @return \Illuminate\Support\Collection
     */
     public function collection()
     {
-        return Employee::all('name', 'email', 'mobile');
+        return new Collection( array(['Name','Email','Mobile Number']));
+
+    }
+    public function headings(): array
+    {
+        return [
+            'name',
+            'email',
+            'mobile',
+        ];
     }
     public function columnFormats(): array
     {
@@ -30,13 +40,6 @@ class ExportEmployee implements FromCollection,WithColumnFormatting,WithCustomSt
     {
         return 'A1';
     }
-    public function headings(): array
-    {
-        return [
-            'Name',
-            'Email',
-            'Mobile Number',
-        ];
-    }
+
 
 }

@@ -34,10 +34,17 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/file-import',function (Request $request){
     return view('file-import');
-});
-Route::post('/import',[EmployeeController::class,
-        'import'])->name('import');
-Route::get('/export-users',[EmployeeController::class,
-        'exportUsers'])->name('export');
+})->name('file.import');
+Route::post('import',[EmployeeController::class,'import'])->name('import');
+Route::get('/export-users',[EmployeeController::class,'exportEmployees'])->name('export');
+Route::get('/export-excel',[EmployeeController::class,'exportExcel'])->name('export.excel');
+Route::get('/export-csv',[EmployeeController::class,'exportCSV'])->name('export.csv');
+Route::get('/export',[EmployeeController::class,'exportView'])->name('export.index');
+Route::get('/export-blank',[EmployeeController::class,'exportBlank'])->name('export.blank');
+Route::get('/table',[EmployeeController::class,'index'])->name('index');
+Route::get('/test',[EmployeeController::class,'getEmployees'])->name('employees.list');
+
+Route::delete('/employee/{id}',[EmployeeController::class,'destroy'])->name('employees.destroy');
+
 
 require __DIR__.'/auth.php';
