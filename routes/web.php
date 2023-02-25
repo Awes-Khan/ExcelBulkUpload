@@ -30,11 +30,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+
+
+Route::get('/employee/{id}/edit',[EmployeeController::class,'edit'])->name('employees.edit');
+Route::get('/employee/{id}/update',[EmployeeController::class,'update'])->name('employees.update');
+Route::delete('/employee/{id}',[EmployeeController::class,'destroy'])->name('employees.destroy');
+Route::get('/employee-list',[EmployeeController::class,'getEmployees'])->name('employees.list');
 
 Route::get('/file-import',function (Request $request){
     return view('file-import');
 })->name('file.import');
+
 Route::post('import',[EmployeeController::class,'import'])->name('import');
 Route::get('/export-users',[EmployeeController::class,'exportEmployees'])->name('export');
 Route::get('/export-excel',[EmployeeController::class,'exportExcel'])->name('export.excel');
@@ -42,9 +48,7 @@ Route::get('/export-csv',[EmployeeController::class,'exportCSV'])->name('export.
 Route::get('/export',[EmployeeController::class,'exportView'])->name('export.index');
 Route::get('/export-blank',[EmployeeController::class,'exportBlank'])->name('export.blank');
 Route::get('/table',[EmployeeController::class,'index'])->name('index');
-Route::get('/test',[EmployeeController::class,'getEmployees'])->name('employees.list');
 
-Route::delete('/employee/{id}',[EmployeeController::class,'destroy'])->name('employees.destroy');
-
+});
 
 require __DIR__.'/auth.php';

@@ -38,33 +38,7 @@ $(document).ready(function() {
 } );
 
 </script> --}}
-<script>
-    function deleteEmployee(id){
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({url: "/employee/"+id, type:delete, success: function(result){
-                Swal.fire(
-                'Deleted!',
-                'Your file has been deleted.',
-                'success'
-                )
-            }});
-            }
-            })
 
-    }
-    function editEmployee(id){
-
-    }
-</script>
 </x-slot>
 
     <div class="py-12">
@@ -139,4 +113,125 @@ $(document).ready(function() {
             </div>
         </div>
     </div>
+    <div class="modal fade" id="ajaxModel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modelHeading"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <ul id="employeeError">
+
+                        </ul>
+                    </div>
+                    <form id="employeeForm" name="employeeForm" class="form-horizontal">
+                       <input type="hidden" name="employee_id" id="employee_id">
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" value="" maxlength="50" required="">
+                            </div>
+                        </div>
+           
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-12">
+                                <input type="email" id="email" name="email" required="" placeholder="Enter Email" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Mobile Number</label>
+                            <div class="col-sm-12">
+                                <input type="tel" id="mobile" name="mobile" required="" placeholder="Enter Mobile Number" class="form-control"/>
+                            </div>
+                        </div>
+            
+                        <div class="col-sm-offset-2 col-sm-10">
+                         <button type="submit" class="btn btn-primary" id="saveBtn" value="Edit Changes">Save changes
+                         </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+          
+    </body>
+    <script>
+        $(function () {
+          
+          $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+          });
+        function deleteEmployee(id){
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({url: "/employee/"+id, type:delete, success: function(result){
+                    Swal.fire(
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                    )
+                }});
+                }
+                })
+    
+        }
+
+        $('.editEmployee').click(function () {
+            $('#saveBtn').val("Save Details");
+            $('#employee_id').val('');
+            $('#employeeForm').trigger("reset");
+            $('#modelHeading').html("Edit Employee Details");
+            $('#ajaxModel').modal('show');
+        });
+          
+
+        $('body').on('click', '.editEmployee', function () {
+          var employee_id = $(this).data('id');
+          $.get("employee" +'/' + employee_id +'/edit', function (data) {
+              $('#modelHeading').html("Edit Employee");
+              $('#saveBtn').val("edit-user");
+              $('#ajaxModel').modal('show');
+              $('#employee_id').val(data.id);
+              $('#name').val(data.name);
+              $('#email').val(data.email);
+              $('#mobile').val(data.mobile);
+          })
+        });
+        $('#saveBtn').click(function (e) {
+        e.preventDefault();
+        var employee_id = $('#employee_id').val();
+
+        $.ajax({
+          data: $('#employeeForm').serialize(),
+          url: "employee/"+employee_id + "/update",
+          type: "POST",
+          dataType: 'json',
+          success: function (data) {
+       
+              $('#employeeForm').trigger("reset");
+              $('#ajaxModel').modal('hide');
+              table.draw();
+           
+          },
+          error: function (data) {
+              console.log('Error:', data);
+              $('#saveBtn').html('Save Changes');
+          }
+      });
+    });
+    });
+      </script>    
 </x-app-layout>
