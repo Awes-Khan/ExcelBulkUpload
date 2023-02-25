@@ -33,8 +33,8 @@ Route::middleware('auth')->group(function () {
 
 
 Route::get('/employee/{id}/edit',[EmployeeController::class,'edit'])->name('employees.edit');
-Route::get('/employee/{id}/update',[EmployeeController::class,'update'])->name('employees.update');
-Route::delete('/employee/{id}',[EmployeeController::class,'destroy'])->name('employees.destroy');
+Route::post('/employee/{id}/update',[EmployeeController::class,'update'])->name('employees.update');
+Route::post('/employee/{id}/delete',[EmployeeController::class,'destroy'])->name('employees.destroy');
 Route::get('/employee-list',[EmployeeController::class,'getEmployees'])->name('employees.list');
 
 Route::get('/file-import',function (Request $request){

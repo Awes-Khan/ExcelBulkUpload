@@ -19,19 +19,22 @@ class EmployeeController extends Controller
         return view('emp',['employees'=>array('key'=>'value')]);
     }
     public function edit ($id){
-        response()->json(Employee::find($id));
+        $Emp = Employee::find($id)->toArray();
+        $Emp = (object) $Emp;
+        return response()->json(($Emp));
     }
     public function update(Request $request, $id){
+        $emp = Employee::find($id);
         $request->validate([
             'name'=>'required|max:80',
-            'email'=>'required|email|unique:employees',
+            'email'=>($emp->email == $request->input('email')) ? 'required|email' : 'required|email|unique:employees',
             'mobile'=>'required|max:13'
          ]);
-        if ($errors->any()){
-            return response()->json('data', $errors);
+        if (isset($errors) && $errors->any()){
+            return response()->back()->json($errors->toArray());
         }
-        Employee::find($id)->update($request);
-        return response()->json('success', 'Employee Edited Successfully');
+        $emp->update(['name'=>$request->input('name'),'email'=>$request->input('email'),'mobile'=>$request->input('mobile')]);
+        return response()->json(['success', 'Employee Edited Successfully']);
 
     }
     public function destroy($id){
@@ -61,7 +64,8 @@ class EmployeeController extends Controller
         $file=$request->file('file')->store('files');
         $import = new ImportEmployee();
         $import->import($file);
-        return redirect()->back();
+        dd($import->errors());
+        return redirect()->back()->json(['success','Employee Records Imported Successfully']);
     }
 
     public function exportEmployees(Request $request){

@@ -8,7 +8,7 @@
 "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
 <link rel="stylesheet" href="/library/mdbootstrap/css/mdb.min.css"/>
 <script src="{{ asset('/library/mdbootstrap/js/mdb.min.js') }}"></script>
-<link rel="stylesheet" href="{{ asset('/library/sweetalert2/dist/sweetalert2.min.js') }}"/>
+<link rel="stylesheet" href="{{ asset('/library/sweetalert2/dist/sweetalert2.min.css') }}"/>
 <script src="{{ asset('/library/sweetalert2/dist/sweetalert2.min.js') }}"></script>
 <script src="{{ asset('/js/app.js') }}"></script>
 <title>Employee Details</title>
@@ -40,6 +40,138 @@ $(document).ready(function() {
 </script> --}}
 
 </x-slot>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+              function deleteEmployee(id){
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({url: "/employee/"+id + "/delete", 
+                    type:"POST",
+                    success: function(result){
+                    Swal.fire(
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                    )
+                }});
+                }
+                })
+    
+        }
+        function editEmployee(id){
+    
+    $('#saveBtn').val("Save Details");
+    $('#employee_id').val('');
+    $('#employeeForm').trigger("reset");
+    $('#modelHeading').html("Edit Employee Details");
+    $('#ajaxModel').modal('show');
+//   console.log("Display Modal DOne");
+  var employee_id = id;
+  $.get("employee" +'/' + employee_id +'/edit',
+   function (data) {
+// console.log('get request comppleted');
+
+// console.log(data);
+$('#modelHeading').html("Edit Employee");
+      $('#saveBtn').val("edit-user");
+      $('#ajaxModel').modal('show');
+      $('#employee_id').val(data.id);
+      $('#name').val(data.name);
+      $('#email').val(data.email);
+      $('#mobile').val(data.mobile);
+  })
+}
+$(function () {
+              
+              $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+              });
+            });
+    </script>
+        <script>
+            $(function () {
+            var table = $('.yajra-datatable').DataTable({
+                                  processing: true,
+                                  serverSide: true,
+                                  ajax: "{{ route('employees.list') }}",
+                                  columns: [
+                                      {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+                                      {data: 'name', name: 'name'},
+                                      {data: 'email', name: 'email'},
+                                      // {data: 'username', name: 'username'},
+                                      {data: 'mobile', name: 'phone'},
+                                      // {data: 'dob', name: 'dob'},
+                                      {
+                                          data: 'action',
+                                          name: 'action',
+                                          orderable: true,
+                                          searchable: true
+                                      },
+                                  ]
+                              });
+
+            $('#saveBtn').click(function (e) {
+            e.preventDefault();
+            var employee_id = $('#employee_id').val();
+            // console.log($('#employeeForm').serialize());
+    
+            $.ajax({
+              data: {
+                'name':$('#name').val(),
+                'email':$('#email').val(),
+                'mobile':$('#mobile').val()
+            }, 
+            //   $('#employeeForm').serialize(),
+              url: "employee/"+employee_id + "/update",
+              type: "POST",
+              dataType: 'json',
+              success: function (data) {
+                    // console.log(data);
+                        $('#employeeForm').trigger("reset");
+                        $('#ajaxModel').modal('hide');
+                        table.draw();
+                        // $('#successDiv').css('display','block');
+                        // $('#employeeSuccess').append('<li>Employee record edited successfully</li>');
+                        Swal.fire(
+                            'Updated!',
+                            'Your record has been updated.',
+                            'success');
+               
+              },
+              error: function (data) {
+                var errors = JSON.parse(data.responseText);
+                        $('#errorDiv').css('display','block');
+                        $('#employeeError').append('<li>'+errors.message+'</li>');
+                        
+                  $('#saveBtn').html('Save Changes');
+              }
+          });
+        });
+        });
+          </script>  
+
+                        <script type="text/javascript">
+                            $(function () {
+      
+      
+                            });
+                          </script>
+                          
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -49,9 +181,9 @@ $(document).ready(function() {
                         <h2 class="mb-4">Employee List</h2>
                         <div class="row" style="margin-top:20px;margin-bottom:20px; margin-right:15px;" >
                             <div class="col-sm" ></div>
-                            <button class="col-sm-1 btn btn-outline-success" href="{{ url('/export-csv') }}" style="margin-right: 10px;font-size:10px;">
+                            <a class="col-sm-1 btn btn-outline-success" href="{{ url('/export-csv') }}" style="margin-right: 10px;font-size:10px;">
                                   Export in CSV
-                               </button>
+                            </a>
                                {{-- <div class="col-sm-1"></div> --}}
                                <a class="col-sm-1 btn btn-outline-primary" style="margin-right: -15px;font-size:10px;padding-right:5px;"
                                href="{{ url('export-excel') }}">
@@ -78,36 +210,7 @@ $(document).ready(function() {
                     </div>
 
                     </body>
-                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
-                    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-                    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-                    <script type="text/javascript">
-                      $(function () {
 
-                        var table = $('.yajra-datatable').DataTable({
-                            processing: true,
-                            serverSide: true,
-                            ajax: "{{ route('employees.list') }}",
-                            columns: [
-                                {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-                                {data: 'name', name: 'name'},
-                                {data: 'email', name: 'email'},
-                                // {data: 'username', name: 'username'},
-                                {data: 'mobile', name: 'phone'},
-                                // {data: 'dob', name: 'dob'},
-                                {
-                                    data: 'action',
-                                    name: 'action',
-                                    orderable: true,
-                                    searchable: true
-                                },
-                            ]
-                        });
-
-                      });
-                    </script>
 
                 </div>
             </div>
@@ -120,8 +223,13 @@ $(document).ready(function() {
                     <h4 class="modal-title" id="modelHeading"></h4>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger" id="errorDiv" style="display:none">
                         <ul id="employeeError">
+
+                        </ul>
+                    </div>
+                    <div class="alert alert-success" id="successDiv" style="display:none">
+                        <ul id="employeeSuccess">
 
                         </ul>
                     </div>
@@ -158,80 +266,5 @@ $(document).ready(function() {
     </div>
           
     </body>
-    <script>
-        $(function () {
-          
-          $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-          });
-        function deleteEmployee(id){
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({url: "/employee/"+id, type:delete, success: function(result){
-                    Swal.fire(
-                    'Deleted!',
-                    'Your file has been deleted.',
-                    'success'
-                    )
-                }});
-                }
-                })
-    
-        }
-
-        $('.editEmployee').click(function () {
-            $('#saveBtn').val("Save Details");
-            $('#employee_id').val('');
-            $('#employeeForm').trigger("reset");
-            $('#modelHeading').html("Edit Employee Details");
-            $('#ajaxModel').modal('show');
-        });
-          
-
-        $('body').on('click', '.editEmployee', function () {
-          var employee_id = $(this).data('id');
-          $.get("employee" +'/' + employee_id +'/edit', function (data) {
-              $('#modelHeading').html("Edit Employee");
-              $('#saveBtn').val("edit-user");
-              $('#ajaxModel').modal('show');
-              $('#employee_id').val(data.id);
-              $('#name').val(data.name);
-              $('#email').val(data.email);
-              $('#mobile').val(data.mobile);
-          })
-        });
-        $('#saveBtn').click(function (e) {
-        e.preventDefault();
-        var employee_id = $('#employee_id').val();
-
-        $.ajax({
-          data: $('#employeeForm').serialize(),
-          url: "employee/"+employee_id + "/update",
-          type: "POST",
-          dataType: 'json',
-          success: function (data) {
-       
-              $('#employeeForm').trigger("reset");
-              $('#ajaxModel').modal('hide');
-              table.draw();
-           
-          },
-          error: function (data) {
-              console.log('Error:', data);
-              $('#saveBtn').html('Save Changes');
-          }
-      });
-    });
-    });
-      </script>    
+  
 </x-app-layout>
