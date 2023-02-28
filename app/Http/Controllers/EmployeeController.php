@@ -14,9 +14,19 @@ use App\Models\Employee;
 use Yajra\DataTables\Facades\DataTables;
 class EmployeeController extends Controller
 {
-    public function index(){
-
-        return view('emp',['employees'=>array('key'=>'value')]);
+    public function getEmployees(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = Employee::latest()->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    $actionBtn = '<a onclick="editEmployee('.$row['id'].');" class="edit btn btn-success btn-sm">Edit</a> <a onclick="deleteEmployee('.$row['id'].');" class="delete btn btn-danger btn-sm">Delete</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
     }
     public function edit ($id){
         $Emp = Employee::find($id)->toArray();
@@ -41,20 +51,6 @@ class EmployeeController extends Controller
 
         $status = Employee::find($id)->delete();
         response()->json(array('status' => $status));
-    }
-    public function getEmployees(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = Employee::latest()->get();
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row){
-                    $actionBtn = '<a onclick="editEmployee('.$row['id'].');" class="edit btn btn-success btn-sm">Edit</a> <a onclick="deleteEmployee('.$row['id'].');" class="delete btn btn-danger btn-sm">Delete</a>';
-                    return $actionBtn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
     }
     public function importView(Request $request){
         return view('importFile');
