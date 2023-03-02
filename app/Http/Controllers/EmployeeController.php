@@ -60,7 +60,7 @@ class EmployeeController extends Controller
         $file=$request->file('file')->store('files');
         $import = new ImportEmployee();
         $import->import($file);
-        dd($import->errors());
+        // dd($import->errors());
         return redirect()->back()->json(['success','Employee Records Imported Successfully']);
     }
 
